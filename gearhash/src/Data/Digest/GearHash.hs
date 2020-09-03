@@ -1,5 +1,6 @@
 {-# LANGUAGE RecordWildCards #-}
 {-# LANGUAGE TemplateHaskell #-}
+{-# LANGUAGE BangPatterns #-}
 
 module Data.Digest.GearHash
   ( GearHashTable
@@ -21,20 +22,21 @@ import Crypto.Random
 import Language.Haskell.TH.Syntax (Lift(liftTyped))
 
 
+{-# INLINE hashInitWith #-}
 hashInitWith :: GearHashTable -> GearHashState
 hashInitWith gearHashTable = GearHashState { gearHashCurrent = 0, .. }
 
+{-# INLINE hashUpdate #-}
 hashUpdate :: Word8 -> GearHashState -> GearHashState
-hashUpdate byte GearHashState{..} = GearHashState
-  { gearHashCurrent = (gearHashCurrent `shiftL` 1) + gear byte
-  , ..
-  }
-  where gear = (unGearHashTable gearHashTable !)
+hashUpdate byte !(hState@GearHashState{..})
+  = hState { gearHashCurrent = (gearHashCurrent `shiftL` 1) + (unGearHashTable gearHashTable ! byte) }
 
+{-# INLINE hashFinalize #-}
 hashFinalize :: GearHashState -> Word64
 hashFinalize = gearHashCurrent
 
 
+{-# INLINE hashInit #-}
 hashInit :: GearHashState
 hashInit = hashInitWith defaultGearHashTable
   

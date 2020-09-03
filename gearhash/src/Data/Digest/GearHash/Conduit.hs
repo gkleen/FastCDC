@@ -5,36 +5,61 @@ module Data.Digest.GearHash.Conduit
   ( GearHashTable
   , mkGearHashTable
   , rollingHash, rollingHashWith, defaultGearHashTable
+  , rollingHash', rollingHashWith'
   ) where
 
 import Prelude
 import Data.Conduit
-import Data.Conduit.Lift
-
-import Data.MonoTraversable
-import Data.Sequences (IsSequence)
+import Data.Conduit.Combinators (chunksOfE, yieldMany)
 
 import Data.Word
 
 import Data.Digest.GearHash
 
-import Control.Monad.State.Class
+import Data.ByteString (ByteString)
+import qualified Data.ByteString as ByteString
+
+import Data.Monoid (Endo(..))
 
 
-rollingHashWith :: forall mono m.
-                   ( Monad m
-                   , IsSequence mono, Element mono ~ Word8
-                   )
-                => GearHashTable
-                -> ConduitT mono Word64 m ()
-rollingHashWith tbl = evalStateC (hashInitWith tbl) . awaitForever $ \chunk ->
-  oforM_ chunk $ \w -> do
-    modify' $ hashUpdate w
-    yieldM $ gets hashFinalize
+rollingHashWith' :: forall m acc.
+                    ( Monad m
+                    , Monoid acc
+                    )
+                 => (Word64 -> acc)
+                 -> GearHashTable
+                 -> ConduitT ByteString acc m ()
+rollingHashWith' toAcc tbl = chunksOfE 128 .| go (hashInitWith tbl)
+  where
+    go hState = do
+      chunk' <- await
+      case chunk' of
+        Nothing -> return ()
+        Just chunk -> do
+          let (hState', acc) = ByteString.foldl' go' (hState, mempty) chunk
+          yield acc
+          go hState'
+
+    go' (hState, acc) w = out `seq` (hState', acc <> toAcc out)
+      where hState' = hashUpdate w hState
+            out = hashFinalize hState'
+
+rollingHash' :: forall m acc.
+                ( Monad m
+                , Monoid acc
+                )
+             => (Word64 -> acc)
+             -> ConduitT ByteString acc m ()
+rollingHash' = flip rollingHashWith' defaultGearHashTable
   
-rollingHash :: forall mono m.
-               ( Monad m
-               , IsSequence mono, Element mono ~ Word8
-               )
-            => ConduitT mono Word64 m ()
+
+rollingHashWith :: forall m.
+                   Monad m
+                => GearHashTable
+                -> ConduitT ByteString Word64 m ()
+rollingHashWith tbl = rollingHashWith' (Endo . (:)) tbl .| awaitForever (yieldMany . flip appEndo [])
+  
+rollingHash :: forall m.
+               Monad m
+            => ConduitT ByteString Word64 m ()
 rollingHash = rollingHashWith defaultGearHashTable
