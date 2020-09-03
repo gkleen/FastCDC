@@ -1,0 +1,45 @@
+name:                gearhash
+version:             0.0.0
+github:              "gkleen/fastcdc/gearhash"
+license:             BSD3
+author:              "Gregor Kleen"
+maintainer:          "aethoago@141.li"
+copyright:           "2020 Gregor Kleen"
+
+dependencies:
+  - base >= 4.7 && < 5
+  - array >= 0.5.4 && < 0.6
+  - template-haskell >= 2.16 && < 2.17
+  - bytestring
+  - th-lift-instances >= 0.1.16 && < 0.2
+  - cryptonite >= 0.24 && < 0.28
+  - conduit >= 1.3 && < 1.4
+  - mono-traversable >= 1.0 && < 1.1
+  - mtl >= 2.2 && < 3
+
+default-extensions:
+  - NoImplicitPrelude
+
+other-extensions:
+  - DeriveGeneric
+  - DeriveDataTypeable
+  - RecordWildCards
+  - TemplateHaskell
+  - TupleSections
+  - ExplicitForAll
+  - TypeFamilies
+
+ghc-options:
+  - -O
+
+library:
+  source-dirs: src
+  exposed-modules:
+    - Data.Digest.GearHash
+    - Data.Digest.GearHash.Conduit
+
+executable:
+  source-dirs: gearhash
+  main: Main.hs
+  dependencies:
+    - gearhash

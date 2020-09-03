@@ -1,0 +1,14 @@
+name:                fastcdc
+version:             0.0.0
+github:              "gkleen/fastcdc/fastcdc"
+license:             BSD3
+author:              "Gregor Kleen"
+maintainer:          "aethoago@141.li"
+copyright:           "2020 Gregor Kleen"
+
+dependencies:
+  - base >= 4.7 && < 5
+  - gearhash >= 0.0 && < 1
+
+library:
+  source-dirs: src
