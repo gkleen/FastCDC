@@ -4,7 +4,7 @@
 
 module Data.Digest.GearHash
   ( GearHashTable
-  , mkGearHashTable
+  , mkGearHashTable, gearHashTableHashLength
   , GearHashState
   , hashInit, hashInitWith, defaultGearHashTable, defaultGearHashTableFor
   , hashUpdate

@@ -47,7 +47,8 @@ mkGearHashTable f = GearHashTable $! array (minBound, maxBound) [(w, f w) | w <-
 
 {-# NOINLINE defaultGearHashTableFor #-}
 defaultGearHashTableFor :: Int -> Maybe GearHashTable
-defaultGearHashTableFor l = gearHashTableFromByteString l . fst . randomBytesGenerate (32 * l) $ drgNewTest (fromIntegral l, 0, 0, 0, 0)
+defaultGearHashTableFor l = gearHashTableFromByteString l . fst . randomBytesGenerate (32 * l') $ drgNewTest (fromIntegral l, 0, 0, 0, 0)
+  where l' = 8 * ceiling (l % 8)
   
 
 gearHashTableHashLength :: GearHashTable -> Maybe Int
@@ -72,16 +73,18 @@ gearHashTableFromByteString l inpBS = fmap mkGearHashTable $ go 0 (\ix -> error 
                  = Nothing
     go ix acc bs = case ByteString.splitAt (ceiling $ l % 8) bs of
       (ws, bs')
-        | ByteString.length ws == (ceiling $ l % 8)
-          -> let res = foldr (\(s, w) wacc -> wacc .|. BitVector.fromNumber (fromIntegral l) w `shiftL` s) (BitVector.fromNumber (fromIntegral l) (0 :: Integer)) . zip [l - 8,l - 16..] $ ByteString.unpack ws
+        | ByteString.length ws == ceiling (l % 8)
+          -> let res = foldr (\(s, w) wacc -> wacc .|. BitVector.fromNumber (fromIntegral l) w `shiftL` s) (BitVector.fromNumber (fromIntegral l) (0 :: Integer)) . zip [l' - 8,l' - 16..] $ ByteString.unpack ws
                  acc' inp
                    | inp == fromIntegral ix = res
                    | otherwise = acc inp
               in go (succ ix) acc' bs'
       _other -> Nothing
+  
+    l' = 8 * ceiling (l % 8)
 
 gearHashTableToByteString :: GearHashTable -> ByteString
-gearHashTableToByteString inpTbl = fst $ ByteString.unfoldrN (32 * l) build (0, [], inpTbl)
+gearHashTableToByteString inpTbl = fst $ ByteString.unfoldrN (32 * l') build (0, [], inpTbl)
   where
     build :: (Int, [Word8], GearHashTable) -> Maybe (Word8, (Int, [Word8], GearHashTable))
     build (ix, [], _) | ix > 255 = Nothing
@@ -90,7 +93,8 @@ gearHashTableToByteString inpTbl = fst $ ByteString.unfoldrN (32 * l) build (0, 
       where
         w = unGearHashTable tbl ! fromIntegral ix
         (w1:ws) = [ BitVector.toUnsignedNumber $ w `shiftR` s
-                  | s <- [l - 8,l - 16..0] 
+                  | s <- [l' - 8,l' - 16..0] 
                   ]
 
+    l' = 8 * ceiling (l % 8)
     l = unsafeGearHashTableHashLength inpTbl
