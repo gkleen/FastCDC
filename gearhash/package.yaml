@@ -52,3 +52,7 @@ executables:
     other-modules: []
     dependencies:
       - gearhash
+  count:
+    source-dirs: gearhash
+    main: Count.hs
+    other-modules: []
