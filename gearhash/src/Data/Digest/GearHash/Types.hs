@@ -8,10 +8,13 @@ module Data.Digest.GearHash.Types where
 import Prelude
 import GHC.Generics (Generic)
 import Data.Typeable (Typeable)
-import Data.Array.Unboxed (UArray)
+import Data.Array (Array)
 import Data.Array.IArray (array, (!))
 import Data.Word
 import Data.Bits
+import Data.BitVector.LittleEndian (BitVector)
+import Data.Ratio ((%))
+import qualified Data.BitVector.LittleEndian as BitVector
 
 import Data.ByteString (ByteString)
 import qualified Data.ByteString as ByteString
@@ -20,40 +23,57 @@ import Instances.TH.Lift ()
 import Language.Haskell.TH.Syntax
 
 import Data.Maybe
+import Data.Monoid (Endo(..))
+
+import Crypto.Random
 
 
 newtype GearHashTable
-  = GearHashTable { unGearHashTable :: UArray Word8 Word64 }
-  deriving (Eq, Ord, Read, Show, Generic, Typeable)
+  = GearHashTable { unGearHashTable :: Array Word8 BitVector }
+  deriving (Eq, Ord, Show, Generic, Typeable)
 
 instance Lift GearHashTable where
-  liftTyped tbl = [||unsafeGearHashTableFromByteString $$(liftTyped $ gearHashTableToByteString tbl)||]
+  liftTyped tbl = [||unsafeGearHashTableFromByteString $$(liftTyped $ unsafeGearHashTableHashLength tbl) $$(liftTyped $ gearHashTableToByteString tbl)||]
 
 data GearHashState = GearHashState
   { gearHashTable   :: GearHashTable
-  , gearHashCurrent :: {-# UNPACK #-} !Word64
+  , gearHashCurrent :: {-# UNPACK #-} !BitVector
   } deriving (Eq, Ord, Show, Generic, Typeable)
 
 
-mkGearHashTable :: (Word8 -> Word64) -> GearHashTable
-mkGearHashTable f = GearHashTable $! array (0, 255) [(w, f w) | w <- [0..255]]
+mkGearHashTable :: (Word8 -> BitVector) -> GearHashTable
+mkGearHashTable f = GearHashTable $! array (minBound, maxBound) [(w, f w) | w <- [minBound..maxBound]]
 
-unsafeGearHashTableFromByteString :: ByteString -> GearHashTable
-unsafeGearHashTableFromByteString = fromMaybe (error "Could not convert GearHashTable from ByteString") . gearHashTableFromByteString
 
-gearHashTableFromByteString :: ByteString -> Maybe GearHashTable
-gearHashTableFromByteString = fmap mkGearHashTable . go 0 (\ix -> error $ "No GearHashTable value available for " ++ show ix)
+{-# NOINLINE defaultGearHashTableFor #-}
+defaultGearHashTableFor :: Int -> Maybe GearHashTable
+defaultGearHashTableFor l = gearHashTableFromByteString l . fst . randomBytesGenerate (32 * l) $ drgNewTest (fromIntegral l, 0, 0, 0, 0)
+  
+
+gearHashTableHashLength :: GearHashTable -> Maybe Int
+gearHashTableHashLength (GearHashTable arr) = flip appEndo Nothing $ foldMap (Endo . max . Just . finiteBitSize) arr
+  
+unsafeGearHashTableHashLength :: GearHashTable -> Int
+unsafeGearHashTableHashLength = fromMaybe (error "Could not determine hash length of GearHashTable") . gearHashTableHashLength
+
+
+unsafeGearHashTableFromByteString :: Int -> ByteString -> GearHashTable
+unsafeGearHashTableFromByteString l = fromMaybe (error "Could not convert GearHashTable from ByteString") . gearHashTableFromByteString l
+
+gearHashTableFromByteString :: Int -> ByteString -> Maybe GearHashTable
+gearHashTableFromByteString l _ | l <= 0 = Nothing
+gearHashTableFromByteString l inpBS = fmap mkGearHashTable $ go 0 (\ix -> error $ "No GearHashTable value available for " ++ show ix) inpBS
   where
-    go :: Int -> (Word8 -> Word64) -> ByteString -> Maybe (Word8 -> Word64)
+    go :: Int -> (Word8 -> BitVector) -> ByteString -> Maybe (Word8 -> BitVector)
     go ix acc bs | ix > 255
                  , ByteString.null bs
                  = Just acc
                  | ix > 255
                  = Nothing
-    go ix acc bs = case ByteString.splitAt 8 bs of
+    go ix acc bs = case ByteString.splitAt (ceiling $ l % 8) bs of
       (ws, bs')
-        | ByteString.length ws == 8
-          -> let res = foldr (\(s, w) wacc -> wacc .|. fromIntegral w `shiftL` s) 0 . zip [56,48..] $ ByteString.unpack ws
+        | ByteString.length ws == (ceiling $ l % 8)
+          -> let res = foldr (\(s, w) wacc -> wacc .|. BitVector.fromNumber (fromIntegral l) w `shiftL` s) (BitVector.fromNumber (fromIntegral l) (0 :: Integer)) . zip [l - 8,l - 16..] $ ByteString.unpack ws
                  acc' inp
                    | inp == fromIntegral ix = res
                    | otherwise = acc inp
@@ -61,7 +81,7 @@ gearHashTableFromByteString = fmap mkGearHashTable . go 0 (\ix -> error $ "No Ge
       _other -> Nothing
 
 gearHashTableToByteString :: GearHashTable -> ByteString
-gearHashTableToByteString = fst . ByteString.unfoldrN 2048 build . (0,[],)
+gearHashTableToByteString inpTbl = fst $ ByteString.unfoldrN (32 * l) build (0, [], inpTbl)
   where
     build :: (Int, [Word8], GearHashTable) -> Maybe (Word8, (Int, [Word8], GearHashTable))
     build (ix, [], _) | ix > 255 = Nothing
@@ -69,6 +89,8 @@ gearHashTableToByteString = fst . ByteString.unfoldrN 2048 build . (0,[],)
     build (ix, [], tbl) = Just (w1, (succ ix, ws, tbl))
       where
         w = unGearHashTable tbl ! fromIntegral ix
-        (w1:ws) = [ fromIntegral $ w `shiftR` s
-                  | s <- [56,48..0] 
+        (w1:ws) = [ BitVector.toUnsignedNumber $ w `shiftR` s
+                  | s <- [l - 8,l - 16..0] 
                   ]
+
+    l = unsafeGearHashTableHashLength inpTbl

@@ -4,15 +4,14 @@
 module Data.Digest.GearHash.Conduit
   ( GearHashTable
   , mkGearHashTable
-  , rollingHash, rollingHashWith, defaultGearHashTable
+  , rollingHash, rollingHashWith, defaultGearHashTable, defaultGearHashTableFor
   , rollingHash', rollingHashWith'
+  , BitVector
   ) where
 
 import Prelude
 import Data.Conduit
 import Data.Conduit.Combinators (chunksOfE, yieldMany)
-
-import Data.Word
 
 import Data.Digest.GearHash
 
@@ -26,7 +25,7 @@ rollingHashWith' :: forall m acc.
                     ( Monad m
                     , Monoid acc
                     )
-                 => (Word64 -> acc)
+                 => (BitVector -> acc)
                  -> GearHashTable
                  -> ConduitT ByteString acc m ()
 rollingHashWith' toAcc tbl = chunksOfE 128 .| go (hashInitWith tbl)
@@ -48,7 +47,7 @@ rollingHash' :: forall m acc.
                 ( Monad m
                 , Monoid acc
                 )
-             => (Word64 -> acc)
+             => (BitVector -> acc)
              -> ConduitT ByteString acc m ()
 rollingHash' = flip rollingHashWith' defaultGearHashTable
   
@@ -56,10 +55,10 @@ rollingHash' = flip rollingHashWith' defaultGearHashTable
 rollingHashWith :: forall m.
                    Monad m
                 => GearHashTable
-                -> ConduitT ByteString Word64 m ()
+                -> ConduitT ByteString BitVector m ()
 rollingHashWith tbl = rollingHashWith' (Endo . (:)) tbl .| awaitForever (yieldMany . flip appEndo [])
   
 rollingHash :: forall m.
                Monad m
-            => ConduitT ByteString Word64 m ()
+            => ConduitT ByteString BitVector m ()
 rollingHash = rollingHashWith defaultGearHashTable

@@ -10,6 +10,8 @@ import Data.Digest.GearHash
 import System.IO (stdin, stdout)
 import Control.Monad (unless)
   
+import qualified Data.BitVector.LittleEndian as BitVector
+  
 
 main :: IO ()
 main = go hashInit
@@ -23,4 +25,4 @@ main = go hashInit
 
     go' (hState, acc) w = out `seq` (hState', acc <> BS.Builder.word64BE out)
       where hState' = hashUpdate w hState
-            out = hashFinalize hState'
+            out = BitVector.toUnsignedNumber $ hashFinalize hState'

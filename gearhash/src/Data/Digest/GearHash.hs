@@ -6,8 +6,9 @@ module Data.Digest.GearHash
   ( GearHashTable
   , mkGearHashTable
   , GearHashState
-  , hashInit, hashInitWith, defaultGearHashTable
+  , hashInit, hashInitWith, defaultGearHashTable, defaultGearHashTableFor
   , hashUpdate
+  , BitVector
   , hashFinalize
   ) where
 
@@ -18,21 +19,27 @@ import Data.Bits (Bits(shiftL))
 
 import Data.Digest.GearHash.Types
 
-import Crypto.Random
 import Language.Haskell.TH.Syntax (Lift(liftTyped))
+
+import Data.BitVector.LittleEndian (BitVector)
+import qualified Data.BitVector.LittleEndian as BitVector
+import Data.Maybe
+
+import Numeric.Natural (Natural)
 
 
 {-# INLINE hashInitWith #-}
 hashInitWith :: GearHashTable -> GearHashState
-hashInitWith gearHashTable = GearHashState { gearHashCurrent = 0, .. }
+hashInitWith gearHashTable = GearHashState { gearHashCurrent = BitVector.fromNumber (fromIntegral $ unsafeGearHashTableHashLength gearHashTable) (0 :: Integer), .. }
 
 {-# INLINE hashUpdate #-}
 hashUpdate :: Word8 -> GearHashState -> GearHashState
-hashUpdate byte !(hState@GearHashState{..})
-  = hState { gearHashCurrent = (gearHashCurrent `shiftL` 1) + (unGearHashTable gearHashTable ! byte) }
+hashUpdate byte !(hState@GearHashState{..}) = hState'
+  where
+    !hState' = hState { gearHashCurrent = BitVector.fromNumber (BitVector.dimension gearHashCurrent) (BitVector.toUnsignedNumber (gearHashCurrent `shiftL` 1) + BitVector.toUnsignedNumber (unGearHashTable gearHashTable ! byte) :: Natural) }
 
 {-# INLINE hashFinalize #-}
-hashFinalize :: GearHashState -> Word64
+hashFinalize :: GearHashState -> BitVector
 hashFinalize = gearHashCurrent
 
 
@@ -42,4 +49,4 @@ hashInit = hashInitWith defaultGearHashTable
   
 {-# NOINLINE defaultGearHashTable #-}
 defaultGearHashTable :: GearHashTable
-defaultGearHashTable = $$(liftTyped . unsafeGearHashTableFromByteString . fst . randomBytesGenerate 2048 $ drgNewTest (0, 0, 0, 0, 0))
+defaultGearHashTable = $$(liftTyped . fromMaybe (error "Could not generate defaultGearHashTable") $ defaultGearHashTableFor 64)
