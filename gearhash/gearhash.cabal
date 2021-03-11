@@ -35,7 +35,7 @@ library
       array >=0.5.4 && <0.6
     , base >=4.7 && <5
     , bv-little >=1.1 && <2
-    , bytestring >=0.10 && <0.11
+    , bytestring >=0.10 && <0.12
     , conduit >=1.3 && <1.4
     , cryptonite >=0.24 && <0.28
     , mtl >=2.2 && <3
@@ -54,7 +54,7 @@ executable count
       array >=0.5.4 && <0.6
     , base >=4.7 && <5
     , bv-little >=1.1 && <2
-    , bytestring >=0.10 && <0.11
+    , bytestring >=0.10 && <0.12
     , conduit >=1.3 && <1.4
     , cryptonite >=0.24 && <0.28
     , mtl >=2.2 && <3
@@ -73,7 +73,7 @@ executable gearhash
       array >=0.5.4 && <0.6
     , base >=4.7 && <5
     , bv-little >=1.1 && <2
-    , bytestring >=0.10 && <0.11
+    , bytestring >=0.10 && <0.12
     , conduit >=1.3 && <1.4
     , cryptonite >=0.24 && <0.28
     , gearhash
@@ -93,7 +93,7 @@ executable gearhash-conduit
       array >=0.5.4 && <0.6
     , base >=4.7 && <5
     , bv-little >=1.1 && <2
-    , bytestring >=0.10 && <0.11
+    , bytestring >=0.10 && <0.12
     , conduit >=1.3 && <1.4
     , cryptonite >=0.24 && <0.28
     , gearhash
