@@ -9,7 +9,7 @@ import Prelude
 import GHC.Generics (Generic)
 import Data.Typeable (Typeable)
 import Data.Array (Array)
-import Data.Array.IArray (array, (!))
+import Data.Array.IArray (array, (!), bounds, indices)
 import Data.Word
 import Data.Bits
 import Data.BitVector.LittleEndian (BitVector)
@@ -30,7 +30,11 @@ import Crypto.Random
 
 newtype GearHashTable
   = GearHashTable { unGearHashTable :: Array Word8 BitVector }
-  deriving (Eq, Ord, Show, Generic, Typeable)
+  deriving (Eq, Ord, Generic, Typeable)
+  
+-- a derived Show instance produces a large amount of information which is seemingly of little use
+instance Show GearHashTable where 
+  show (GearHashTable ght) = "GearHashTable" <> show (bounds ght) <> " having " <> show (length (indices ght)) <> " entries."
 
 instance Lift GearHashTable where
   liftTyped tbl = [||unsafeGearHashTableFromByteString $$(liftTyped $ unsafeGearHashTableHashLength tbl) $$(liftTyped $ gearHashTableToByteString tbl)||]
