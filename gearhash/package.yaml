@@ -2,9 +2,11 @@ name:                gearhash
 version:             1.0.0
 github:              "gkleen/fastcdc/gearhash"
 license:             BSD3
+license-file:        LICENSE
 author:              "Gregor Kleen"
 maintainer:          "aethoago@141.li"
 copyright:           "2022 Gregor Kleen"
+synopsis:            "An implementation of Gear hash, a fast rolling hash algorithm"
 
 dependencies:
   - base >= 4.7 && < 5
@@ -30,9 +32,13 @@ other-extensions:
   - TypeFamilies
   - BangPatterns
 
+when:
+  - condition: flag(pedantic)
+    ghc-options:
+      - -Werror
+
 ghc-options:
-  - -O
-  - -Wall -Werror
+  - -Wall
 
 library:
   source-dirs: src
@@ -57,3 +63,8 @@ executables:
     source-dirs: gearhash
     main: Count.hs
     other-modules: []
+
+flags:
+  pedantic:
+    manual: true
+    default: false

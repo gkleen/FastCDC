@@ -6,18 +6,24 @@ cabal-version: 1.12
 
 name:           fastcdc
 version:        0.0.0
+synopsis:       An implementation of FastCDC, a content-defined chunking algorithm based on the Gear hash rolling hash algorithm
 homepage:       https://github.com/gkleen/fastcdc#readme
 bug-reports:    https://github.com/gkleen/fastcdc/issues
 author:         Gregor Kleen
 maintainer:     aethoago@141.li
-copyright:      2020 Gregor Kleen
+copyright:      2022 Gregor Kleen
 license:        BSD3
+license-file:   LICENSE
 build-type:     Simple
 
 source-repository head
   type: git
   location: https://github.com/gkleen/fastcdc
   subdir: fastcdc
+
+flag pedantic
+  manual: True
+  default: False
 
 library
   exposed-modules:
@@ -35,12 +41,15 @@ library
       ScopedTypeVariables
       DeriveGeneric
       DeriveDataTypeable
+  ghc-options: -Wall
   build-depends:
       base >=4.7 && <5
     , bv-little >=1.1 && <2
     , bytestring ==0.10.*
     , conduit ==1.3.*
-    , gearhash >=0.0 && <1
+    , gearhash >=0.0 && <2
+  if flag(pedantic)
+    ghc-options: -Werror
   default-language: Haskell2010
 
 executable fastcdc
@@ -56,11 +65,14 @@ executable fastcdc
       ScopedTypeVariables
       DeriveGeneric
       DeriveDataTypeable
+  ghc-options: -Wall
   build-depends:
       base >=4.7 && <5
     , bv-little >=1.1 && <2
     , bytestring ==0.10.*
     , conduit ==1.3.*
     , fastcdc
-    , gearhash >=0.0 && <1
+    , gearhash >=0.0 && <2
+  if flag(pedantic)
+    ghc-options: -Werror
   default-language: Haskell2010
