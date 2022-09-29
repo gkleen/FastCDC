@@ -1,10 +1,10 @@
 name:                gearhash
-version:             0.0.0
+version:             1.0.0
 github:              "gkleen/fastcdc/gearhash"
 license:             BSD3
 author:              "Gregor Kleen"
 maintainer:          "aethoago@141.li"
-copyright:           "2020 Gregor Kleen"
+copyright:           "2022 Gregor Kleen"
 
 dependencies:
   - base >= 4.7 && < 5
