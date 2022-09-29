@@ -1,5 +1,5 @@
-resolver: nightly-2021-01-11
-compiler: ghc-8.10.3
+resolver: lts-18.28
+compiler: ghc-8.10.7
 
 packages:
   - fastcdc

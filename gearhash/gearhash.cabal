@@ -1,6 +1,6 @@
 cabal-version: 1.12
 
--- This file has been generated from package.yaml by hpack version 0.34.2.
+-- This file has been generated from package.yaml by hpack version 0.34.7.
 --
 -- see: https://github.com/sol/hpack
 
@@ -28,18 +28,27 @@ library
       Paths_gearhash
   hs-source-dirs:
       src
-  default-extensions: NoImplicitPrelude
-  other-extensions: DeriveGeneric DeriveDataTypeable RecordWildCards TemplateHaskell TupleSections ExplicitForAll TypeFamilies BangPatterns
+  default-extensions:
+      NoImplicitPrelude
+  other-extensions:
+      DeriveGeneric
+      DeriveDataTypeable
+      RecordWildCards
+      TemplateHaskell
+      TupleSections
+      ExplicitForAll
+      TypeFamilies
+      BangPatterns
   ghc-options: -O -Wall -Werror
   build-depends:
       array >=0.5.4 && <0.6
     , base >=4.7 && <5
     , bv-little >=1.1 && <2
     , bytestring >=0.10 && <0.12
-    , conduit >=1.3 && <1.4
-    , cryptonite >=0.24 && <0.28
+    , conduit ==1.3.*
+    , cryptonite >=0.24 && <0.30
     , mtl >=2.2 && <3
-    , template-haskell >=2.16 && <2.17
+    , template-haskell ==2.16.*
     , th-lift-instances >=0.1.16 && <0.2
   default-language: Haskell2010
 
@@ -47,18 +56,27 @@ executable count
   main-is: Count.hs
   hs-source-dirs:
       gearhash
-  default-extensions: NoImplicitPrelude
-  other-extensions: DeriveGeneric DeriveDataTypeable RecordWildCards TemplateHaskell TupleSections ExplicitForAll TypeFamilies BangPatterns
+  default-extensions:
+      NoImplicitPrelude
+  other-extensions:
+      DeriveGeneric
+      DeriveDataTypeable
+      RecordWildCards
+      TemplateHaskell
+      TupleSections
+      ExplicitForAll
+      TypeFamilies
+      BangPatterns
   ghc-options: -O -Wall -Werror
   build-depends:
       array >=0.5.4 && <0.6
     , base >=4.7 && <5
     , bv-little >=1.1 && <2
     , bytestring >=0.10 && <0.12
-    , conduit >=1.3 && <1.4
-    , cryptonite >=0.24 && <0.28
+    , conduit ==1.3.*
+    , cryptonite >=0.24 && <0.30
     , mtl >=2.2 && <3
-    , template-haskell >=2.16 && <2.17
+    , template-haskell ==2.16.*
     , th-lift-instances >=0.1.16 && <0.2
   default-language: Haskell2010
 
@@ -66,19 +84,28 @@ executable gearhash
   main-is: Direct.hs
   hs-source-dirs:
       gearhash
-  default-extensions: NoImplicitPrelude
-  other-extensions: DeriveGeneric DeriveDataTypeable RecordWildCards TemplateHaskell TupleSections ExplicitForAll TypeFamilies BangPatterns
+  default-extensions:
+      NoImplicitPrelude
+  other-extensions:
+      DeriveGeneric
+      DeriveDataTypeable
+      RecordWildCards
+      TemplateHaskell
+      TupleSections
+      ExplicitForAll
+      TypeFamilies
+      BangPatterns
   ghc-options: -O -Wall -Werror
   build-depends:
       array >=0.5.4 && <0.6
     , base >=4.7 && <5
     , bv-little >=1.1 && <2
     , bytestring >=0.10 && <0.12
-    , conduit >=1.3 && <1.4
-    , cryptonite >=0.24 && <0.28
+    , conduit ==1.3.*
+    , cryptonite >=0.24 && <0.30
     , gearhash
     , mtl >=2.2 && <3
-    , template-haskell >=2.16 && <2.17
+    , template-haskell ==2.16.*
     , th-lift-instances >=0.1.16 && <0.2
   default-language: Haskell2010
 
@@ -86,18 +113,27 @@ executable gearhash-conduit
   main-is: Conduit.hs
   hs-source-dirs:
       gearhash
-  default-extensions: NoImplicitPrelude
-  other-extensions: DeriveGeneric DeriveDataTypeable RecordWildCards TemplateHaskell TupleSections ExplicitForAll TypeFamilies BangPatterns
+  default-extensions:
+      NoImplicitPrelude
+  other-extensions:
+      DeriveGeneric
+      DeriveDataTypeable
+      RecordWildCards
+      TemplateHaskell
+      TupleSections
+      ExplicitForAll
+      TypeFamilies
+      BangPatterns
   ghc-options: -O -Wall -Werror
   build-depends:
       array >=0.5.4 && <0.6
     , base >=4.7 && <5
     , bv-little >=1.1 && <2
     , bytestring >=0.10 && <0.12
-    , conduit >=1.3 && <1.4
-    , cryptonite >=0.24 && <0.28
+    , conduit ==1.3.*
+    , cryptonite >=0.24 && <0.30
     , gearhash
     , mtl >=2.2 && <3
-    , template-haskell >=2.16 && <2.17
+    , template-haskell ==2.16.*
     , th-lift-instances >=0.1.16 && <0.2
   default-language: Haskell2010
