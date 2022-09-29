@@ -30,7 +30,10 @@ import Crypto.Random
 
 newtype GearHashTable
   = GearHashTable { unGearHashTable :: Array Word8 BitVector }
-  deriving (Eq, Ord, Show, Generic, Typeable)
+  deriving (Eq, Ord, Generic, Typeable)
+
+instance Show GearHashTable where
+  showsPrec d (GearHashTable _) = showParen (d > 10) $ showString "GearHashTable _"
 
 instance Lift GearHashTable where
   liftTyped tbl = [||unsafeGearHashTableFromByteString $$(liftTyped $ unsafeGearHashTableHashLength tbl) $$(liftTyped $ gearHashTableToByteString tbl)||]
@@ -49,11 +52,11 @@ mkGearHashTable f = GearHashTable $! array (minBound, maxBound) [(w, f w) | w <-
 defaultGearHashTableFor :: Int -> Maybe GearHashTable
 defaultGearHashTableFor l = gearHashTableFromByteString l . fst . randomBytesGenerate (32 * l') $ drgNewTest (fromIntegral l, 0, 0, 0, 0)
   where l' = 8 * ceiling (l % 8)
-  
+
 
 gearHashTableHashLength :: GearHashTable -> Maybe Int
 gearHashTableHashLength (GearHashTable arr) = flip appEndo Nothing $ foldMap (Endo . max . Just . finiteBitSize) arr
-  
+
 unsafeGearHashTableHashLength :: GearHashTable -> Int
 unsafeGearHashTableHashLength = fromMaybe (error "Could not determine hash length of GearHashTable") . gearHashTableHashLength
 
@@ -80,7 +83,7 @@ gearHashTableFromByteString l inpBS = fmap mkGearHashTable $ go 0 (\ix -> error 
                    | otherwise = acc inp
               in go (succ ix) acc' bs'
       _other -> Nothing
-  
+
     l' = 8 * ceiling (l % 8)
 
 gearHashTableToByteString :: GearHashTable -> ByteString
@@ -93,7 +96,7 @@ gearHashTableToByteString inpTbl = fst $ ByteString.unfoldrN (32 * l') build (0,
       where
         w = unGearHashTable tbl ! fromIntegral ix
         (w1:ws) = [ BitVector.toUnsignedNumber $ w `shiftR` s
-                  | s <- [l' - 8,l' - 16..0] 
+                  | s <- [l' - 8,l' - 16..0]
                   ]
 
     l' = 8 * ceiling (l % 8)
