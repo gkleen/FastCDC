@@ -11,7 +11,7 @@ synopsis:            "An implementation of Gear hash, a fast rolling hash algori
 dependencies:
   - base >= 4.7 && < 5
   - array >= 0.5.4 && < 0.6
-  - template-haskell >= 2.16 && < 2.17
+  - template-haskell >= 2.16 && < 2.20
   - bytestring >= 0.10 && < 0.12
   - th-lift-instances >= 0.1.16 && < 0.2
   - cryptonite >= 0.24 && < 0.30

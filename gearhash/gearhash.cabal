@@ -1,6 +1,6 @@
 cabal-version: 1.12
 
--- This file has been generated from package.yaml by hpack version 0.34.7.
+-- This file has been generated from package.yaml by hpack version 0.35.0.
 --
 -- see: https://github.com/sol/hpack
 
@@ -54,11 +54,11 @@ library
     , conduit ==1.3.*
     , cryptonite >=0.24 && <0.30
     , mtl >=2.2 && <3
-    , template-haskell ==2.16.*
+    , template-haskell >=2.16 && <2.20
     , th-lift-instances >=0.1.16 && <0.2
+  default-language: Haskell2010
   if flag(pedantic)
     ghc-options: -Werror
-  default-language: Haskell2010
 
 executable count
   main-is: Count.hs
@@ -84,11 +84,11 @@ executable count
     , conduit ==1.3.*
     , cryptonite >=0.24 && <0.30
     , mtl >=2.2 && <3
-    , template-haskell ==2.16.*
+    , template-haskell >=2.16 && <2.20
     , th-lift-instances >=0.1.16 && <0.2
+  default-language: Haskell2010
   if flag(pedantic)
     ghc-options: -Werror
-  default-language: Haskell2010
 
 executable gearhash
   main-is: Direct.hs
@@ -115,11 +115,11 @@ executable gearhash
     , cryptonite >=0.24 && <0.30
     , gearhash
     , mtl >=2.2 && <3
-    , template-haskell ==2.16.*
+    , template-haskell >=2.16 && <2.20
     , th-lift-instances >=0.1.16 && <0.2
+  default-language: Haskell2010
   if flag(pedantic)
     ghc-options: -Werror
-  default-language: Haskell2010
 
 executable gearhash-conduit
   main-is: Conduit.hs
@@ -146,8 +146,8 @@ executable gearhash-conduit
     , cryptonite >=0.24 && <0.30
     , gearhash
     , mtl >=2.2 && <3
-    , template-haskell ==2.16.*
+    , template-haskell >=2.16 && <2.20
     , th-lift-instances >=0.1.16 && <0.2
+  default-language: Haskell2010
   if flag(pedantic)
     ghc-options: -Werror
-  default-language: Haskell2010
